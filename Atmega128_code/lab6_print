@@ -1,0 +1,2324 @@
+%!PS-Adobe-3.0
+%%Title: lab6_code.c
+%%For: Andrew McCullough
+%%Creator: a2ps version 4.14
+%%CreationDate: Sat Dec  2 14:53:57 2017
+%%BoundingBox: 24 24 588 768
+%%DocumentData: Clean7Bit
+%%Orientation: Landscape
+%%Pages: 7
+%%PageOrder: Ascend
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-BoldOblique
+%%+ font Courier-Oblique
+%%+ font Helvetica
+%%+ font Helvetica-Bold
+%%+ font Symbol
+%%+ font Times-Bold
+%%+ font Times-Roman
+%%DocumentProcessColors: Black 
+%%DocumentSuppliedResources: procset a2ps-a2ps-hdr
+%%+ procset a2ps-black+white-Prolog
+%%+ encoding ISO-8859-1Encoding
+%%EndComments
+/a2psdict 200 dict def
+a2psdict begin
+%%BeginProlog
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+
+% EPSF import as in the Red Book
+/BeginInclude {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack 
+  userdict begin
+    0 setgray 0 setlinecap
+    1 setlinewidth 0 setlinejoin
+    10 setmiterlimit [ ] 0 setdash newpath
+    gs_languagelevel 1 ne {
+      false setstrokeadjust false setoverprint 
+    } if
+} bind def
+
+/EndInclude {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+/BeginEPSF {
+  BeginInclude
+  /showpage { } def
+} bind def
+
+/EndEPSF {
+  EndInclude
+} bind def
+
+% Page prefeed
+/page_prefeed {         % bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} bind def
+
+/deffont {
+  findfont exch scalefont def
+} bind def
+
+/reencode_font {
+  findfont reencode 2 copy definefont pop def
+} bind def
+
+% Function c-show (str => -)
+% centers text only according to x axis.
+/c-show { 
+  dup stringwidth pop
+  2 div neg 0 rmoveto
+  show
+} bind def
+
+% Function l-show (str => -)
+% prints texts so that it ends at currentpoint
+/l-show {
+  dup stringwidth pop neg 
+  0 
+  rmoveto show
+} bind def
+
+% center-fit show (str w => -)
+% show centered, and scale currentfont so that the width is less than w
+/cfshow {
+  exch dup stringwidth pop
+  % If the title is too big, try to make it smaller
+  3 2 roll 2 copy
+  gt
+  { % if, i.e. too big
+    exch div
+    currentfont exch scalefont setfont
+  } { % ifelse
+    pop pop 
+  }
+  ifelse
+  c-show			% center title
+} bind def
+
+% Return the y size of the current font
+% - => fontsize
+/currentfontsize {
+  currentfont /FontType get 0 eq {
+    currentfont /FontMatrix get 3 get
+  }{
+    currentfont /FontMatrix get 3 get 1000 mul
+  } ifelse
+} bind def
+
+% reencode the font
+% <encoding-vector> <fontdict> -> <newfontdict>
+/reencode { %def
+  dup length 5 add dict begin
+    { %forall
+      % <vector> <key> <val>
+      1 index /FID ne 
+      { def }{ pop pop } ifelse
+    } forall
+    /Encoding exch def % -
+
+    % Use the font's bounding box to determine the ascent, descent,
+    % and overall height; don't forget that these values have to be
+    % transformed using the font's matrix.
+    % We use `load' because sometimes BBox is executable, sometimes not.
+    % Since we need 4 numbers an not an array avoid BBox from being executed
+    /FontBBox load aload pop
+    FontMatrix transform /Ascent exch def pop
+    FontMatrix transform /Descent exch def pop
+    /FontHeight Ascent Descent sub def
+
+    % Get the underline position and thickness if they're defined.
+    % Use 1 if they are not defined.
+    currentdict /FontInfo 2 copy known
+    { get
+      /UnderlinePosition 2 copy % <FontInfo> /UP <FontInfo> /UP
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+
+      /UnderlineThickness 2 copy % <FontInfo> /UT <FontInfo> /UT
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+      pop % -
+    }{ pop pop
+    } ifelse
+
+    currentdict
+  end 
+} bind def
+
+% composite fonts for ASCII-EUC mixed strings
+% Version 1.2 1/31/1990
+% Original Ken'ichi HANDA (handa@etl.go.jp)
+% Modified Norio Katayama (katayama@rd.nacsis.ac.jp),1998
+% Extend & Fix Koji Nakamaru (maru@on.cs.keio.ac.jp), 1999
+% Anyone can freely copy, modify, distribute this program.
+
+/copyfont {	% font-dic extra-entry-count  copyfont  font-dic
+	1 index maxlength add dict begin
+	{	1 index /FID ne 2 index /UniqueID ne and
+		{def} {pop pop} ifelse
+	} forall
+	currentdict
+	end
+} bind def
+
+/compositefont { % ASCIIFontName EUCFontName RomanScale RomanOffset Rot(T/F) compositefont font
+    /RomanRotation exch def
+    /RomanOffset exch def
+    /RomanScale exch def
+    userdict /fixeucfont_dict known not {
+	userdict begin
+	    /fixeucfont_dict 2 dict begin
+		/UpperByteEncoding [
+		    16#00 1 16#20 { pop 0 } for
+		    16#21 1 16#28 { 16#20 sub } for
+		    16#29 1 16#2F { pop 0 } for
+		    16#30 1 16#74 { 16#27 sub } for
+		    16#75 1 16#FF { pop 0 } for
+		] def
+	        /LowerByteEncoding [
+		    16#00 1 16#A0 { pop /.notdef } for
+		    16#A1 1 16#FE { 16#80 sub 16 2 string cvrs
+				    (cXX) dup 1 4 -1 roll
+				    putinterval cvn } for
+		    /.notdef
+		] def
+		currentdict
+	    end def
+	end
+    } if
+    findfont dup /FontType get 0 eq {
+	14 dict begin
+	    %
+	    % 7+8 bit EUC font
+	    %
+	    12 dict begin
+		/EUCFont exch def
+		/FontInfo (7+8 bit EUC font) readonly def
+		/PaintType 0 def
+		/FontType 0 def
+		/FontMatrix matrix def
+		% /FontName
+		/Encoding fixeucfont_dict /UpperByteEncoding get def
+		/FMapType 2 def
+		EUCFont /WMode known
+		{ EUCFont /WMode get /WMode exch def }
+		{ /WMode 0 def } ifelse
+		/FDepVector [
+		    EUCFont /FDepVector get 0 get
+		    [ 16#21 1 16#28 {} for 16#30 1 16#74 {} for ]
+		    {
+			13 dict begin
+			    /EUCFont EUCFont def
+			    /UpperByte exch 16#80 add def	
+			    % /FontName
+			    /FontInfo (EUC lower byte font) readonly def
+			    /PaintType 0 def
+			    /FontType 3 def
+			    /FontMatrix matrix def
+			    /FontBBox {0 0 0 0} def
+			    /Encoding
+				fixeucfont_dict /LowerByteEncoding get def
+			    % /UniqueID
+			    % /WMode
+			    /BuildChar {
+				gsave
+				exch dup /EUCFont get setfont
+				/UpperByte get
+				2 string
+				dup 0 4 -1 roll put
+				dup 1 4 -1 roll put
+				dup stringwidth setcharwidth
+				0 0 moveto show
+				grestore
+			    } bind def
+			    currentdict
+			end
+			/lowerbytefont exch definefont
+		    } forall
+		] def
+		currentdict
+	    end
+	    /eucfont exch definefont
+	    exch
+	    findfont 1 copyfont dup begin
+		RomanRotation {
+			/FontMatrix FontMatrix
+			[ 0 RomanScale neg RomanScale 0 RomanOffset neg 0 ]
+			matrix concatmatrix def
+		}{
+			/FontMatrix FontMatrix
+			[ RomanScale 0 0 RomanScale 0 RomanOffset ] matrix concatmatrix
+			def
+			/CDevProc
+			    {pop pop pop pop 0 exch -1000 exch 2 div 880} def
+		} ifelse
+	    end
+	    /asciifont exch definefont
+	    exch
+	    /FDepVector [ 4 2 roll ] def
+	    /FontType 0 def
+	    /WMode 0 def
+	    /FMapType 4 def
+	    /FontMatrix matrix def
+	    /Encoding [0 1] def
+	    /FontBBox {0 0 0 0} def
+%	    /FontHeight 1.0 def % XXXX
+	    /FontHeight RomanScale 1.0 ge { RomanScale }{ 1.0 } ifelse def
+	    /Descent -0.3 def   % XXXX
+	    currentdict
+	end
+	/tmpfont exch definefont
+	pop
+	/tmpfont findfont
+    }{
+	pop findfont 0 copyfont
+    } ifelse
+} def	
+
+/slantfont {	% FontName slant-degree  slantfont  font'
+    exch findfont 1 copyfont begin
+    [ 1 0 4 -1 roll 1 0 0 ] FontMatrix exch matrix concatmatrix
+    /FontMatrix exch def
+    currentdict
+    end
+} def
+
+% Function print line number (<string> # -)
+/# {
+  gsave
+    sx cw mul neg 2 div 0 rmoveto
+    f# setfont
+    c-show
+  grestore
+} bind def
+
+% -------- Some routines to enlight plain b/w printings ---------
+
+% Underline
+% width --
+/dounderline {
+  currentpoint
+  gsave
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    0 rlineto
+    stroke
+  grestore
+} bind def
+
+% Underline a string
+% string --
+/dounderlinestring {
+  stringwidth pop
+  dounderline
+} bind def
+
+/UL {
+  /ul exch store
+} bind def
+
+% Draw a box of WIDTH wrt current font
+% width --
+/dobox {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    stroke
+  grestore
+} bind def
+
+/BX {
+  /bx exch store
+} bind def
+
+% Box a string
+% string --
+/doboxstring {
+  stringwidth pop
+  dobox
+} bind def
+
+%
+% ------------- Color routines ---------------
+%
+/FG /setrgbcolor load def
+
+% Draw the background
+% width --
+/dobackground {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    bgcolor aload pop setrgbcolor
+    fill
+  grestore
+} bind def
+
+% Draw bg for a string
+% string --
+/dobackgroundstring {
+  stringwidth pop
+  dobackground
+} bind def
+
+
+/BG {
+  dup /bg exch store
+  { mark 4 1 roll ] /bgcolor exch store } if
+} bind def
+
+
+/Show {
+  bg { dup dobackgroundstring } if
+  ul { dup dounderlinestring } if
+  bx { dup doboxstring } if
+  show
+} bind def
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T {
+  cw mul x0 add
+  bg { dup currentpoint pop sub dobackground } if
+  ul { dup currentpoint pop sub dounderline } if
+  bx { dup currentpoint pop sub dobox } if
+  y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n {
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+/S {
+  Show
+} bind def
+
+%%BeginResource: procset a2ps-a2ps-hdr 2.0 2
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Function title: prints page header.
+% <ct> <rt> <lt> are passed as argument
+/title { 
+  % 1. Draw the background
+  x v get y v get moveto
+  gsave
+    0 th 2 div neg rmoveto 
+    th setlinewidth
+    0.95 setgray
+    pw 0 rlineto stroke
+  grestore
+  % 2. Border it
+  gsave
+    0.7 setlinewidth
+    pw 0 rlineto
+    0 th neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+  % stk: ct rt lt
+  x v get y v get th sub 1 add moveto
+%%IncludeResource: font Helvetica
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  % 3. The left title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    fnfs 0.8 mul hm rmoveto
+    show			% left title
+  grestore
+  exch
+  % stk: ct ltw rt
+  % 4. the right title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    dup
+    pw exch stringwidth pop fnfs 0.8 mul add sub
+    hm
+    rmoveto
+    show			% right title
+  grestore
+  % stk: ct ltw rtw
+  % 5. the center title
+  gsave
+    pw 3 1 roll
+    % stk: ct pw ltw rtw
+    3 copy 
+    % Move to the center of the left room
+    sub add 2 div hm rmoveto
+    % What is the available space in here?
+    add sub fnfs 0.8 mul sub fnfs 0.8 mul sub
+    % stk: ct space_left
+%%IncludeResource: font Helvetica-Bold
+  fHelvetica-Bold fnfs scalefont setfont
+    cfshow
+  grestore
+} bind def
+
+% Function border: prints virtual page border
+/border { %def
+  gsave				% print four sides
+    0 setgray
+    x v get y v get moveto
+    0.7 setlinewidth		% of the square
+    pw 0 rlineto
+    0 ph neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+} bind def
+
+% Function water: prints a water mark in background
+/water { %def
+  gsave
+    scx scy moveto rotate
+%%IncludeResource: font Times-Bold
+  fTimes-Bold 100 scalefont setfont
+    .97 setgray
+    dup stringwidth pop 2 div neg -50 rmoveto
+    show
+  grestore
+} bind def
+
+% Function rhead: prints the right header
+/rhead {  %def
+  lx ly moveto
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  l-show
+} bind def
+
+% Function footer (cf rf lf -> -)
+/footer {
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  dx dy moveto
+  show
+
+  snx sny moveto
+  l-show
+  
+  fnx fny moveto
+  c-show
+} bind def
+%%EndResource
+%%BeginResource: procset a2ps-black+white-Prolog 2.0 1
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T { 
+  cw mul x0 add y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n { %def
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+}  bind def
+
+/S {
+  Show
+} bind def
+
+/p {
+  false UL
+  false BX
+  fCourier bfs scalefont setfont
+  Show
+} bind def
+
+/sy {
+  false UL
+  false BX
+  fSymbol bfs scalefont setfont
+  Show
+} bind def
+
+/k {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/K {
+  false UL
+  false BX
+  fCourier-Bold bfs scalefont setfont
+  Show
+} bind def
+
+/c {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/C {
+  false UL
+  false BX
+  fCourier-BoldOblique bfs scalefont setfont
+  Show 
+} bind def
+
+/l {
+  false UL
+  false BX
+  fHelvetica bfs scalefont setfont
+  Show
+} bind def
+
+/L {
+  false UL
+  false BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show 
+} bind def
+
+/str{
+  false UL
+  false BX
+  fTimes-Roman bfs scalefont setfont
+  Show
+} bind def
+
+/e{
+  false UL
+  true BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show
+} bind def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier
+%%IncludeResource: font Courier-Oblique
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Symbol
+%%IncludeResource: font Courier-BoldOblique
+%%BeginResource: encoding ISO-8859-1Encoding
+/ISO-8859-1Encoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright 
+/parenleft /parenright /asterisk /plus /comma /minus /period /slash 
+/zero /one /two /three /four /five /six /seven 
+/eight /nine /colon /semicolon /less /equal /greater /question 
+/at /A /B /C /D /E /F /G 
+/H /I /J /K /L /M /N /O 
+/P /Q /R /S /T /U /V /W 
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore 
+/quoteleft /a /b /c /d /e /f /g 
+/h /i /j /k /l /m /n /o 
+/p /q /r /s /t /u /v /w 
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section 
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron 
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /bullet 
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown 
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla 
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply 
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla 
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis 
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide 
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis 
+] def
+%%EndResource
+% Initialize page description variables.
+/sh 612 def
+/sw 792 def
+/llx 24 def
+/urx 768 def
+/ury 588 def
+/lly 24 def
+/#copies 1 def
+/th 15.000000 def
+/fnfs 11 def
+/bfs 7.493857 def
+/cw 4.496314 def
+
+% Dictionary for ISO-8859-1 support
+/iso1dict 8 dict begin
+  /fCourier ISO-8859-1Encoding /Courier reencode_font
+  /fCourier-Bold ISO-8859-1Encoding /Courier-Bold reencode_font
+  /fCourier-BoldOblique ISO-8859-1Encoding /Courier-BoldOblique reencode_font
+  /fCourier-Oblique ISO-8859-1Encoding /Courier-Oblique reencode_font
+  /fHelvetica ISO-8859-1Encoding /Helvetica reencode_font
+  /fHelvetica-Bold ISO-8859-1Encoding /Helvetica-Bold reencode_font
+  /fTimes-Bold ISO-8859-1Encoding /Times-Bold reencode_font
+  /fTimes-Roman ISO-8859-1Encoding /Times-Roman reencode_font
+currentdict end def
+/bgcolor [ 0 0 0 ] def
+/bg false def
+/ul false def
+/bx false def
+% The font for line numbering
+/f# /Helvetica findfont bfs .6 mul scalefont def
+/fSymbol /Symbol findfont def
+/hm fnfs 0.25 mul def
+/pw
+   cw 81.400000 mul
+def
+/ph
+   522.321860 th add
+def
+/pmw urx llx sub pw 2 mul sub 1 div def
+/pmh 0 def
+/v 0 def
+/x [
+  0
+  dup pmw add pw add
+] def
+/y [
+  pmh ph add 0 mul ph add
+  dup
+] def
+/scx sw 2 div def
+/scy sh 2 div def
+/snx urx def
+/sny lly 2 add def
+/dx llx def
+/dy sny def
+/fnx scx def
+/fny dy def
+/lx snx def
+/ly ury fnfs 0.8 mul sub def
+/sx 0 def
+/tab 8 def
+/x0 0 def
+/y0 0 def
+%%EndSetup
+
+%%Page: (1-2) 1
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(// lab6_code.c ) c n
+(// Andrew McCullough) N
+(// 11.29.2017) N
+() p n
+(#include) K
+( <avr/io.h>) p n
+(#include) K
+( <util/delay.h>) p n
+(#include) K
+( <avr/interrupt.h>) p n
+(#include) K
+( <string.h>) p n
+(#include) K
+( <stdlib.h>) p n
+(#include) K
+( ") p
+(hd44780.h) str
+(") p n
+(#include) K
+( ") p
+(lm73_functions.h) str
+(") p n
+(#include) K
+( ") p
+(twi_master.h) str
+(") p n
+(#include) K
+( ") p
+(uart_functions.h) str
+(") p n
+(#include) K
+( ") p
+(si4734.h) str
+(") p n
+() N
+(//define selects for digits) c n
+(#define) K
+( d4 0x00) p n
+(#define) K
+( d3 0x10) p n
+(#define) K
+( dc 0x20) p n
+(#define) K
+( d2 0x30) p n
+(#define) K
+( d1 0x40) p n
+() N
+(//define segments) c n
+(#define) K
+( n0 0b11000000) p n
+(#define) K
+( n1 0b11111001) p n
+(#define) K
+( n2 0b10100100) p n
+(#define) K
+( n3 0b10110000) p n
+(#define) K
+( n4 0b10011001) p n
+(#define) K
+( n5 0b10010010) p n
+(#define) K
+( n6 0b10000010) p n
+(#define) K
+( n7 0b11111000) p n
+(#define) K
+( n8 0b10000000) p n
+(#define) K
+( n9 0b10010000) p n
+(#define) K
+( nn 0b11111111) p n
+(#define) K
+( nd 0b01111111) p n
+() N
+(#define) K
+( nc 0b11111100) p n
+(#define) K
+( na 0b11111011) p n
+(#define) K
+( nb 0b11111000) p n
+() N
+() N
+(//holds data to be sent to the segments. logic zero turns segment on) c n
+(uint8_t segment_data[12] = {0,0,0,0,0,0,0,0,0,0,0,0}; ) p n
+() N
+(//decimal to 7-segment LED display encodings, logic "0" turns on segment) c n
+(uint8_t dec_to_7seg[12]; ) p n
+() N
+(//time to display on LEDs) c n
+(uint8_t time_hr = 0;) p n
+(uint8_t time_min = 0;) N
+(uint8_t time_sec = 0;) N
+(uint8_t alarm_hr = 0;) N
+(uint8_t alarm_min = 0;) N
+(uint8_t alarm_sec = 0;) N
+(uint8_t snooze_count = 0;) N
+() N
+(//indicators on LED) c n
+(//bit 0 colon, bit 1 alarm armed) N
+(uint8_t indicators = 0b00000000;) p n
+() N
+(//array for button debounce memory) c n
+(uint8_t button[8];) p n
+() N
+(//ADC value) c n
+(uint16_t adc_val;) p n
+() N
+(//mode) c n
+(//bit 7: 1 clock) N
+(//bit 6: 1 radio ) N
+(lab6_code.c) (Page 1/14) (Dec 02, 17 14:27) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(//bit 5: 1 alarm) c n
+(//bit 4: 1 alarm on, 0 alarm off) N
+(//bit 3: 1 snoozing, 0 not snoozing) N
+(//bit 2: 1 alarming, 0 not alarming) N
+(//bit 1: 1 radio on, 0 radio off) N
+(uint8_t mode = 0b10000000; ) p n
+() N
+(//local temp variables) c n
+(extern) K
+( uint8_t lm73_wr_buf[2];) p n
+(extern) K
+( uint8_t lm73_rd_buf[2];) p n
+(char) k
+( lcd_string_local_temp[16];) p n
+(uint16_t lm73_temp;) N
+() N
+(//remote temp variables) c n
+(char) k
+( lcd_string_remote_temp[16];) p n
+(volatile) K
+( uint8_t rcv_rdy;) p n
+(char) k
+( rx_char;) p n
+() N
+(//current and last encoder value) c n
+(uint8_t enc_val;) p n
+(uint8_t enc_last;) N
+() N
+(//radio variables) c n
+(extern) K
+( ) p
+(enum) k
+( radio_band{FM, AM, SW};) p n
+(extern) K
+( ) p
+(volatile) K
+( uint8_t STC_interrupt;) p n
+(extern) K
+( uint8_t  si4734_wr_buf[9];) p n
+(extern) K
+( uint8_t  si4734_rd_buf[9];) p n
+(extern) K
+( uint8_t  si4734_tune_status_buf[8];) p n
+(volatile) K
+( ) p
+(enum) k
+( radio_band current_radio_band = FM;) p n
+() N
+(uint16_t eeprom_fm_freq;) N
+(uint16_t eeprom_am_freq;) N
+(uint16_t eeprom_sw_freq;) N
+(uint8_t  eeprom_volume;) N
+() N
+(uint16_t current_fm_freq = 10630;) N
+(uint16_t current_am_freq;) N
+(uint16_t current_sw_freq;) N
+(uint8_t  current_volume;) N
+() N
+(//Used in debug mode for UART1) c n
+(char) k
+( uart1_tx_buf[40];      ) p
+(//holds string to send to crt) c n
+(char) k
+( uart1_rx_buf[40];      ) p
+(//holds string that recieves data from uart   ) c n
+() p n
+() N
+(//**************************************************************************) c n
+(//) S 8 T (chk_buttons                                      ) N
+(//debounce code extended for all buttons, stores state in array state[8]) N
+(uint8_t chk_buttons\(\) {) p n
+() N
+() S 8 T () S
+(static) K
+( uint16_t state[8] = {0,0,0,0,0,0,0,0};) p n
+() S 8 T (uint8_t i = 0;) N
+() N
+() S 8 T () S
+(//Using debounce code from lab1, created loop to look through all button) c n
+(s) N
+() p 8 T () S
+(while) K
+( \(i < 8\){) p n
+() S 8 T () S 16 T (state[i] = \(state[i] << 1\) | \(! bit_is_clear\(PINA, i\)\) | 0xE000;) N
+() N
+() S 8 T () S 16 T () S
+(if) K
+( \(state[i] == 0xF000\){) p n
+() S 8 T () S 16 T () S 24 T (button[i] = 1;) N
+() S 8 T () S 16 T () S 24 T () S
+(return) K
+( 1;) p n
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(else) K
+({) p n
+() S 8 T () S 16 T () S 24 T (button[i] = 0;) N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T (i++;) N
+() S 8 T (}) N
+(lab6_code.c) (Page 2/14) (Dec 02, 17 14:27) title
+border
+grestore
+(Printed by Andrew McCullough) rhead
+(lab6_code.c) (1/7) (Saturday December 02, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (3-4) 2
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p 8 T () S
+(return) K
+( 0;) p n
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (store_seg_data) N
+(//Gets digit and puts in segment data) N
+(void) k
+( store_seg_data\(uint8_t time_hr, uint8_t time_min, uint16_t current_fm_freq\)) p n
+({) N
+() N
+() S 8 T (segment_data[3] = time_min%10;) N
+() S 8 T (segment_data[2] = \(time_min%100 - segment_data[3]\)/10;) N
+() S 8 T (segment_data[1] = time_hr%10;) N
+() S 8 T (segment_data[0] = \(time_hr%100 - segment_data[1]\)/10;) N
+() N
+() S 8 T (segment_data[7] = alarm_min%10;) N
+() S 8 T (segment_data[6] = \(alarm_min%100 - segment_data[7]\)/10;) N
+() S 8 T (segment_data[5] = alarm_hr%10;) N
+() S 8 T (segment_data[4] = \(alarm_hr%100 - segment_data[5]\)/10;) N
+() N
+() S 8 T (uint16_t freq = \(current_fm_freq/10\);) N
+() N
+() S 8 T (segment_data[11] = freq%10;) N
+() S 8 T (segment_data[10] = \(freq%100 - segment_data[11]\)/10;) N
+() S 8 T (segment_data[9] = \(freq%1000 - segment_data[10]*10 - segment_data[11]\)/1) N
+(00;) N
+() S 8 T (segment_data[8] = \(freq%10000 - segment_data[9]*100 - segment_data[10]*1) N
+(0 - segment_data[11]\)/1000;) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (display_led) N
+(//gets data for each segment and displays on led board, taking away leading 0s) N
+(//sends segments to PORTA and what digit to PORTB) N
+(void) k
+( display_led\(\){) p n
+() N
+() S 8 T () S
+(switch) K
+( \(mode & 0b11100000\){) p n
+() N
+() S 8 T () S 16 T () S
+(//display hrs and mins for time) c n
+() p 8 T () S 16 T () S
+(case) K
+(\(0b10000000\):) p n
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[3]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d4;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[2]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d3;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T () S
+(//decides what to light up on indicator led's) c n
+() p 8 T () S 16 T () S 24 T () S
+(switch) K
+( \(indicators\){) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000000\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nn;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000001\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000010\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = na;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+(lab6_code.c) (Page 3/14) (Dec 02, 17 14:27) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000011\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nb;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() S 8 T () S 16 T () S 24 T (}) N
+() N
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[1]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d2;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[0]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d1;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S
+(break) K
+(;) p n
+() N
+() N
+() S 8 T () S 16 T () S 24 T () S
+(//display frequency) c n
+() p 8 T () S 16 T () S
+(case) K
+(\(0b01000000\):) p n
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[11]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d4;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[10]]; ) N
+() S 8 T () S 16 T () S 24 T (PORTA &= 0b01111111;) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d3;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T () S
+(//decides what to light up on indicator led's) c n
+() p 8 T () S 16 T () S 24 T () S
+(switch) K
+( \(indicators\){) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000000\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nn;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000001\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nn;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000010\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = na;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000011\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = na;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() S 8 T () S 16 T () S 24 T (}) N
+() N
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[9]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d2;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T () S
+(if) K
+( \(segment_data[8] == 0\){PORTA = nn;}) p n
+() S 8 T () S 16 T () S 24 T () S
+(else) K
+( PORTA =  dec_to_7seg[segment_data[8]];) p n
+() S 8 T () S 16 T () S 24 T (PORTB =  d1;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S
+(break) K
+(;  ) p n
+() N
+() N
+() S 8 T () S 16 T () S 24 T () S
+(//display hrs and mins for alarm) c n
+(lab6_code.c) (Page 4/14) (Dec 02, 17 14:27) title
+border
+grestore
+(Printed by Andrew McCullough) rhead
+(lab6_code.c) (2/7) (Saturday December 02, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (5-6) 3
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p 8 T () S 16 T () S
+(case) K
+(\(0b00100000\):) p n
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[7]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d4;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[6]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d3;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T () S
+(//decides what to light up on indicator led's) c n
+() p 8 T () S 16 T () S 24 T () S
+(switch) K
+( \(indicators\){) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000000\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000001\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000010\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nb;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+(\(0b00000011\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTA = nb;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (PORTB = dc;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() S 8 T () S 16 T () S 24 T (}) N
+() N
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[5]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d2;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() N
+() S 8 T () S 16 T () S 24 T (PORTA =  dec_to_7seg[segment_data[4]];) N
+() S 8 T () S 16 T () S 24 T (PORTB =  d1;) N
+() S 8 T () S 16 T () S 24 T (_delay_ms\(.2\);) N
+() S 8 T () S 16 T () S 24 T () S
+(break) K
+(;) p n
+() N
+() S 8 T (}    ) N
+() S 8 T (PORTB = 0x60;) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (spi_init) N
+(//initializes the spi) N
+(void) k
+( spi_init\(\){) p n
+() N
+() S 8 T (DDRB |= 0x07;) N
+() S 8 T (PORTB |= 0x01;) N
+() S 8 T (DDRD |= 0x04;) N
+() S 8 T (DDRE |= 0b11000000;) N
+() N
+() S 8 T (DDRF |= 0x08;) N
+() S 8 T (PORTF &= 0xF7;) N
+() S 8 T (PORTB |= _BV\(PB1\);) N
+() N
+() S 8 T () S
+(//master mode, clk low on idle, leading edge sample) c n
+() p 8 T (SPCR |= \(1<<SPE\) | \(1<<MSTR\); ) N
+() S 8 T (SPSR |= \(1<<SPI2X\); ) N
+() N
+(lab6_code.c) (Page 5/14) (Dec 02, 17 14:27) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(}) p n
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//  spi_get) N
+(//get the spi data) N
+(uint8_t spi_get\(\){) p n
+() N
+() S 8 T (PORTE |= 0x80;) N
+() S 8 T (PORTE &= ~0x40;) N
+() S 8 T (PORTE |= 0x40;) N
+() S 8 T (PORTE &= ~0x80;) N
+() S 8 T (SPDR = 0x00;) N
+() N
+() S 8 T () S
+(while) K
+( \(!\(SPSR &\(1<<SPIF\)\)\){}) p n
+() N
+() S 8 T () S
+(return) K
+( ~SPDR;) p n
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//hardware reset of Si4734) N
+(//) S 8 T (radio_reset) N
+(void) k
+( radio_reset\(\){) p n
+() S 8 T (PORTE &= ~\(1<<PE7\); ) S
+(//int2 initially low to sense TWI mode) c n
+() p 8 T (DDRE  |= 0x80;      ) S
+(//turn on Port E bit 7 to drive it low) c n
+() p 8 T (PORTE |=  \(1<<PE2\); ) S
+(//hardware reset Si4734 ) c n
+() p 8 T (_delay_us\(200\);     ) S
+(//hold for 200us, 100us by spec         ) c n
+() p 8 T (PORTE &= ~\(1<<PE2\); ) S
+(//release reset ) c n
+() p 8 T (_delay_us\(30\);      ) S
+(//5us required because of my slow I2C translators I ) c n
+(suspect) N
+() p 8 T () S
+(//Si code in "low" has 30us delay...no explaination) c n
+() p 8 T (DDRE  &= ~\(0x80\);   ) S
+(//now Port E bit 7 becomes input from the radio inte) c n
+(rrupt) N
+() p n
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//  enc_get) N
+(//checks the previous encoder value against the new encoder value) N
+(//adds or subtracts amount based off the mode) N
+(void) k
+( enc_get\(\){     ) p n
+() N
+() S 8 T (enc_val = spi_get\(\);) N
+() N
+() S 8 T () S
+(if) K
+( \(enc_val != enc_last\){) p n
+() N
+() S 8 T () S 16 T () S
+(//left knob) c n
+() p 8 T () S 16 T () S
+(switch) K
+( \(enc_val & 0b00000011\){) p n
+() N
+() S 8 T () S 16 T () S 24 T () S
+(case) K
+( \(0b00000010\):) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(//left turn) c n
+() p 8 T () S 16 T () S 24 T () S 32 T () S
+(if) K
+( \(\(enc_last & 0x03\) == 0b00000000\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (current_fm_freq -= 20;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(current_fm_freq < 8810\){current_fm_f) p n
+(req = 10790;}) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(\(mode & 0b00000010\) == 0b00000010\){f) p n
+(m_tune_freq\(\);}) N
+() S 8 T () S 16 T () S 24 T () S 32 T (} ) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(//right turn) c n
+() p 8 T () S 16 T () S 24 T () S 32 T () S
+(else) K
+( ) p
+(if) K
+( \(\(enc_last & 0x03\) == 0b00000011\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (current_fm_freq += 20;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(current_fm_freq > 10790\){current_fm_) p n
+(freq = 8810;}) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(\(mode & 0b00000010\) == 0b00000010\){f) p n
+(m_tune_freq\(\);}) N
+() S 8 T () S 16 T () S 24 T () S 32 T (}) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(break) K
+(;) p n
+(lab6_code.c) (Page 6/14) (Dec 02, 17 14:27) title
+border
+grestore
+(Printed by Andrew McCullough) rhead
+(lab6_code.c) (3/7) (Saturday December 02, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (7-8) 4
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(//right knob) c n
+() p 8 T () S 16 T () S
+(switch) K
+( \(enc_val & 0b00001100\){) p n
+() N
+() S 8 T () S 16 T () S 24 T () S
+(case) K
+( \(0b00001000\):) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(//left turn) c n
+() p 8 T () S 16 T () S 24 T () S 32 T () S
+(if) K
+( \(\(enc_last & 0x0C\) == 0b00000000\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(OCR3A <= 0xE000\){OCR3A += 0x1000;} ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (}) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(//right turn) c n
+() p 8 T () S 16 T () S 24 T () S 32 T () S
+(else) K
+( ) p
+(if) K
+( \(\(enc_last & 0x0C\) == 0b00001100\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(OCR3A >= 0x6000\){OCR3A -= 0x1000;} ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (} ) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(break) K
+(;) p n
+() S 8 T () S 16 T (}) N
+() S 8 T (}) N
+() N
+() S 8 T (enc_last = enc_val;) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (button_cmd) N
+(//check the buttons and toggle the mode value based on what button) N
+(void) k
+( button_cmd\(\){) p n
+() N
+() S 8 T () S
+(if) K
+( \(chk_buttons\(\)\){) p n
+() N
+() S 8 T () S 16 T () S
+(//8th button: time mode) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(button[7] == 1\){) p n
+() S 8 T () S 16 T () S 24 T (mode &= ~0b01100000;) N
+() S 8 T () S 16 T () S 24 T (mode |=  0b10000000;) N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(//7th button: radio mode) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(button[6] == 1\){) p n
+() S 8 T () S 16 T () S 24 T (mode &= ~0b10100000;) N
+() S 8 T () S 16 T () S 24 T (mode |=  0b01000000;) N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(//6th button: alarm mode) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(button[5] == 1\){) p n
+() S 8 T () S 16 T () S 24 T (mode &= ~0b11000000;) N
+() S 8 T () S 16 T () S 24 T (mode |=  0b00100000;) N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(//5th button: toggles alarm on and off) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(button[4] == 1\){) p n
+() S 8 T () S 16 T () S 24 T (mode ^= 1 << 4;) N
+() S 8 T () S 16 T () S 24 T (indicators ^= 1 << 1;) N
+() N
+() S 8 T () S 16 T () S 24 T () S
+(switch) K
+(\(mode & 0b00010000\){  ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+( \(0b00010000\): ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (set_cursor\(1,0\); ) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (string2lcd\(") S
+(ALARM) str
+("\); ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(case) K
+( \(0b00000000\):) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (set_cursor\(1,0\); ) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (string2lcd\(") S
+(     ) str
+("\); ) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(break) K
+(;) p n
+() S 8 T () S 16 T () S 24 T (}) S 32 T () S 40 T () N
+() N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(//4th button: snooze mode, if alarm sounding) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(button[3] == 1\){) p n
+() S 8 T () S 16 T () S 24 T () S
+(if) K
+( \(\(mode & 0b00000100\) == 0b00000100\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (mode |= 0b00001000;) N
+(lab6_code.c) (Page 7/14) (Dec 02, 17 14:27) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p 8 T () S 16 T () S 24 T (}) N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(//4th button: radio on and tune/off) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(button[2] == 1\){) p n
+() S 8 T () S 16 T () S 24 T (mode ^= 1 << 1;) N
+() N
+() S 8 T () S 16 T () S 24 T () S
+(if) K
+( \(\(mode & 0b00000010\) == 0b00000010\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (radio_reset\(\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T (fm_pwr_up\(\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T (fm_tune_freq\(\);) N
+() S 8 T () S 16 T () S 24 T (}) N
+() S 8 T () S 16 T () S 24 T () S
+(else) K
+( ) p
+(if) K
+( \(\(mode & 0b00000010\) == 0b00000000\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (radio_pwr_dwn\(\);) N
+() S 8 T () S 16 T () S 24 T (}) N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(//1st button: minutes) c n
+() p 8 T () S 16 T () S
+(//2nd button: hours) c n
+() p 8 T () S 16 T () S
+(//switch for hr and min setting) c n
+() p 8 T () S 16 T () S
+(switch) K
+( \(mode & 0b11100000\){) p n
+() N
+() S 8 T () S 16 T () S 24 T () S
+(//time mode buttons) c n
+() p 8 T () S 16 T () S 24 T () S
+(case) K
+( \(0b10000000\):) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(if) K
+( \(button[0] == 1\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (time_min++;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(time_min == 60\){time_min = 0;}) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (}) N
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(if) K
+( \(button[1] == 1\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (time_hr++;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(time_hr == 24\){time_hr = 0;}) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (}) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(break) K
+(;) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(//radio mode buttons) c n
+() p 8 T () S 16 T () S 24 T () S
+(case) K
+( \(0b01000000\):) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(if) K
+( \(button[0] == 1\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (current_fm_freq = 10630;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (fm_tune_freq\(\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T (}) N
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(if) K
+( \(button[1] == 1\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (current_fm_freq = 10470;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (fm_tune_freq\(\);) N
+() S 8 T () S 16 T () S 24 T () S 32 T (}) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(break) K
+(; ) p n
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(//alarm mode buttons) c n
+() p 8 T () S 16 T () S 24 T () S
+(case) K
+( \(0b00100000\):) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(if) K
+( \(button[0] == 1\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (alarm_min++;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(alarm_min == 60\){alarm_min = 0;}) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (}) N
+() N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(if) K
+( \(button[1] == 1\){) p n
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T (alarm_hr++;) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S 40 T () S
+(if) K
+( \(alarm_hr == 24\){alarm_hr = 0;}) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (}) N
+() S 8 T () S 16 T () S 24 T () S 32 T () S
+(break) K
+(;) p n
+() S 8 T () S 16 T (}) N
+() S 8 T (}) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (adc_get) N
+(//gets adc value) N
+(void) k
+( adc_get\(\){) p n
+(lab6_code.c) (Page 8/14) (Dec 02, 17 14:27) title
+border
+grestore
+(Printed by Andrew McCullough) rhead
+(lab6_code.c) (4/7) (Saturday December 02, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (9-10) 5
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p n
+() S 8 T (ADCSRA |= \(1<<ADSC\);) N
+() S 8 T () S
+(while) K
+( \(bit_is_clear\(ADCSRA,ADIF\)\){}) p n
+() S 8 T (ADCSRA |= \(1<<ADIF\);) N
+() S 8 T (adc_val = \(ADC/50\);) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (set_brightness) N
+(//sets the brightness of the led display) N
+(void) k
+( set_brightness\(\){) p n
+() N
+() S 8 T () S
+(switch) K
+(\(adc_val\){) p n
+() N
+() S 8 T () S 16 T () S
+(case) K
+(\(20\): OCR2 = 0xFF; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(19\): OCR2 = 0xFF; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(18\): OCR2 = 0xFF; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(17\): OCR2 = 0xFF; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(16\): OCR2 = 0xDF; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(15\): OCR2 = 0xBF; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(14\): OCR2 = 0x9F; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(13\): OCR2 = 0x7F; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(12\): OCR2 = 0x5F; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(11\): OCR2 = 0x3F; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(10\): OCR2 = 0x1F; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(9\): OCR2 = 0x0F; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(8\): OCR2 = 0x0F; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(7\): OCR2 = 0x06; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(6\): OCR2 = 0x06; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(5\): OCR2 = 0x00; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(4\): OCR2 = 0x00; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(3\): OCR2 = 0x00; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(2\): OCR2 = 0x00; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(1\): OCR2 = 0x00; ) p
+(break) K
+(;) p n
+() S 8 T () S 16 T () S
+(case) K
+(\(0\): OCR2 = 0x00; ) p
+(break) K
+(;) p n
+() S 8 T (}) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (local_temp) N
+(void) k
+( local_temp\(\){) p n
+() N
+() S 8 T (set_cursor\(2,2\);) N
+() N
+() S 8 T () S
+(//read temperature data from LM73 \(2 bytes\)) c n
+() p 8 T (twi_start_rd\(LM73_ADDRESS, lm73_rd_buf, 2\); ) N
+() S 8 T (display_led\(\);) N
+() S 8 T (display_led\(\);) N
+() N
+() S 8 T () S
+(//now assemble the two bytes read back into one 16-bit value) c n
+() p 8 T (lm73_temp = lm73_rd_buf[0];  ) S
+(//save high temperature byte into lm73_temp) c n
+() p 8 T (lm73_temp = lm73_temp << 8;  ) S
+(//shift it into upper byte ) c n
+() p 8 T (lm73_temp |= lm73_rd_buf[1]; ) S
+(//"OR" in the low temp byte to lm73_temp) c n
+() p 8 T (lm73_temp = lm73_temp >> 7;) N
+() N
+() S 8 T (itoa\(lm73_temp, lcd_string_local_temp, 10\);    ) S 56 T () S 64 T () N
+() S 8 T (string2lcd\(lcd_string_local_temp\);) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (remote_temp) N
+(//sends character to m48 to initiate temperature read) N
+(void) k
+( remote_temp\(\){) p n
+() N
+() S 8 T (uart_putc\(') S
+(r) str
+('\);) p n
+(} ) N
+(lab6_code.c) (Page 9/14) (Dec 02, 17 14:27) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (ISR USART0) N
+(//USART receive interrupt) N
+(ISR\(USART0_RX_vect\){) p n
+() N
+() N
+() S 8 T () S
+(static) K
+(  uint8_t  i;) p n
+() S 8 T (rx_char = UDR0;              ) S
+(//get character) c n
+() p 8 T (lcd_string_remote_temp[i++]=rx_char;  ) S
+(//store in array ) c n
+() p 8 T () S
+(//if entire string has arrived, set flag, reset index) c n
+() p 8 T () S
+(if) K
+(\(rx_char == ') p
+(\\0) str
+('\){) p n
+() S 8 T () S 16 T (rcv_rdy=1; ) N
+() S 8 T () S 16 T (lcd_string_remote_temp[--i]  = \(') S
+( ) str
+('\);     ) p
+(//clear the count fiel) c n
+(d) N
+() p 8 T () S 16 T (lcd_string_remote_temp[i+1]  = \(') S
+( ) str
+('\);) p n
+() S 8 T () S 16 T (lcd_string_remote_temp[i+2]  = \(') S
+( ) str
+('\);) p n
+() S 8 T () S 16 T (i=0;  ) N
+() S 8 T (}) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (tcnt0_init) N
+(//initialize tcnt0) N
+(void) k
+( tcnt0_init\(\){) p n
+() N
+() S 8 T (TIMSK |= \(1<<TOIE0\);) N
+() S 8 T (TCCR0 |= \(1<<CS00\);) N
+() S 8 T (ASSR |= \(1<<AS0\);) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (tcnt1_init) N
+(//initialize tcnt1) N
+(//enable speaker output) N
+(void) k
+( tcnt1_init\(\){) p n
+() N
+() S 8 T (DDRD |= 0b00001000;) N
+() S 8 T (TCCR1A |= 0x00;) N
+() S 8 T (TCCR1B |= \(1<<WGM12\) | \(1<<CS10\) | \(1<<CS11\);) N
+() S 8 T (TCCR1C = 0x00;) N
+() S 8 T (OCR1A = 0x0050;) N
+() S 8 T (TIMSK &= ~\(1<<OCIE1A\); ) S 32 T () N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (tcnt1_on) N
+(//turn on tcnt1) N
+(//enable speaker output) N
+(void) k
+( tcnt1_on\(\){) p n
+() N
+() S 8 T (TIMSK |= \(1<<OCIE1A\);) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (tcnt1_off) N
+(//turn off tcnt1) N
+(//disable speaker output) N
+(void) k
+( tcnt1_off\(\){) p n
+() N
+() S 8 T (TIMSK &= ~\(1<<OCIE1A\); ) S 32 T () N
+(}) N
+(//**************************************************************************) c n
+() p n
+(lab6_code.c) (Page 10/14) (Dec 02, 17 14:27) title
+border
+grestore
+(Printed by Andrew McCullough) rhead
+(lab6_code.c) (5/7) (Saturday December 02, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (11-12) 6
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(//**************************************************************************) c n
+(//) S 8 T (tcnt2_init) N
+(//initialize tcnt2) N
+(void) k
+( tcnt2_init\(\){) p n
+() N
+() S 8 T (TCCR2 |= \(1<<WGM21\) | \(1<<WGM20\) | \(1<<COM21\) | \(1<<COM20\) | \(1<<CS20\);) N
+() S 8 T (OCR2 = 0xFF;) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (tcnt3_init) N
+(//initialize tcnt3) N
+(void) k
+( tcnt3_init\(\){) p n
+() N
+() S 8 T (DDRE |= \(1<<PE3\);) N
+() S 8 T (TCCR3A |= \(1<<COM3A1\) | \(1<<COM3A0\) | \(1<<WGM31\);) N
+() S 8 T (TCCR3B |= \(1<<WGM33\) | \(1<<WGM32\) | \(1<<CS30\);) N
+() S 8 T (TCCR3C |= 0x00;) N
+() S 8 T (OCR3A = 0xA000;) N
+() S 8 T (ICR3 = 0xF000;) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (ISR 1) N
+(ISR\(TIMER1_COMPA_vect\){) p n
+() N
+() S 8 T (TCCR1A = 0;) N
+() N
+() S 8 T () S
+(static) K
+( uint8_t count = 0;) p n
+() S 8 T (count++;) N
+() N
+() S 8 T () S
+(if) K
+( \(count % 1 == 0\){PORTD = \(1<<PD3\);}) p 48 T () N
+() S 8 T () S
+(if) K
+( \(count % 2 == 0\){PORTD = \(0<<PD3\);}) p 48 T () N
+() N
+() S 8 T () S
+(if) K
+(\(count % 100 == 0\){OCR1A = 0x0080;}   ) p n
+() S 8 T () S
+(if) K
+(\(count % 200 == 0\){OCR1A = 0x0050;}   ) p n
+() N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (radio_init) N
+(void) k
+( radio_init\(\){) p n
+() N
+() S 8 T () S
+(//Rogers radio code) c n
+() p 8 T (DDRE  |= 0x04; ) S
+(//Port E bit 2 is active high reset for radio ) c n
+() p 8 T (DDRE  |= 0x08; ) S
+(//Port E bit 3 is TCNT3 PWM output for volume) c n
+() p 8 T (PORTE |= 0x04; ) S
+(//radio reset is on at powerup \(active high\)) c n
+() p n
+() S 8 T (EICRB |= \(1 << ISC70\) | \(1 <<ISC71\);) N
+() S 8 T (EIMSK |= \(1<< INT7\);   ) N
+(}) N
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//external interrupt for radio) N
+(//) S 8 T (ISR 7) N
+(ISR\(INT7_vect\){STC_interrupt = TRUE;}) p n
+(//**************************************************************************) c n
+() p n
+(//**************************************************************************) c n
+(//) S 8 T (ISR 0) N
+(ISR\(TIMER0_OVF_vect\){) p n
+() N
+() S 8 T () S
+(static) K
+( uint8_t count = 0;) p n
+() S 8 T (count++;) N
+() N
+(lab6_code.c) (Page 11/14) (Dec 02, 17 14:27) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p 8 T (adc_get\(\);) N
+() S 8 T (set_brightness\(\);) N
+() N
+() S 8 T () S
+(if) K
+( \(\(count % 64\) == 0\){) p n
+() N
+() S 8 T () S 16 T () S
+(//blink colon) c n
+() p 8 T () S 16 T (indicators ^= 1 << 0;) N
+() S 8 T (}) N
+() N
+() S 8 T () S
+(if) K
+( \(\(count % 128\) == 0\){) p n
+() N
+() S 8 T () S 16 T (count = 0;) N
+() S 8 T () S 16 T (time_sec++;) N
+() N
+() S 8 T () S 16 T (local_temp\(\);) N
+() S 8 T () S 16 T (remote_temp\(\);) N
+() N
+() S 8 T () S 16 T () S
+(//bound minutes and hours) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(time_sec == 60\){time_sec = 0, time_min++;}) p n
+() S 8 T () S 16 T () S
+(if) K
+( \(time_min == 60\){time_min = 0, time_hr++;}) p n
+() S 8 T () S 16 T () S
+(if) K
+( \(time_hr == 24\){time_hr = 0;}) p n
+() N
+() S 8 T () S 16 T () S
+(//if alarm on, and times match, sound alarm) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(\(\(mode & 0b00010000\) == 0b00010000\)) p n
+() S 8 T () S 16 T () S 24 T () S 32 T (&& \(time_hr == alarm_hr\)) N
+() S 8 T () S 16 T () S 24 T () S 32 T (&& \(time_min == alarm_min\)) N
+() S 8 T () S 16 T () S 24 T () S 32 T (&& \(time_sec == alarm_sec\)\){) N
+() S 8 T () S 16 T () S 24 T (mode |= 0b00000100;) N
+() S 8 T () S 16 T () S 24 T (tcnt1_on\(\);) N
+() S 8 T () S 16 T (}    ) N
+() N
+() S 8 T () S 16 T () S
+(//if alarm off, stop sounding alarm and stop snooze) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(\(mode & 0b00010000\) == 0b00000000\){) p n
+() S 8 T () S 16 T () S 24 T (mode &= ~0b00001100;) N
+() S 8 T () S 16 T () S 24 T (tcnt1_off\(\);) N
+() S 8 T () S 16 T (}) S 24 T () S 32 T (    ) N
+() N
+() N
+() S 8 T () S 16 T () S
+(//if snooze pressed, increment count and stop sounding alarm) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(\(mode & 0b00001000\) == 0b00001000\){) p n
+() S 8 T () S 16 T () S 24 T (snooze_count++;) N
+() S 8 T () S 16 T () S 24 T (mode &=  ~0b00000100;) N
+() S 8 T () S 16 T () S 24 T (tcnt1_off\(\);) N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T () S
+(//if snooze done, turn off snooze and sound alarm again) c n
+() p 8 T () S 16 T () S
+(if) K
+( \(snooze_count == 10\){) p n
+() S 8 T () S 16 T () S 24 T (mode &= ~0b00001000;) N
+() S 8 T () S 16 T () S 24 T (mode |= 0b00000100;) N
+() S 8 T () S 16 T () S 24 T (snooze_count = 0;) N
+() S 8 T () S 16 T () S 24 T (tcnt1_on\(\);) N
+() S 8 T () S 16 T (} ) N
+() S 8 T (}) N
+(}) N
+(//**************************************************************************) c n
+() p n
+() N
+(int) k
+( main\(\)) p n
+({) N
+() N
+() S 8 T () S
+(//initialize decimal to 7 segment array) c n
+() p 8 T (dec_to_7seg[0] = n0;) N
+() S 8 T (dec_to_7seg[1] = n1;) N
+() S 8 T (dec_to_7seg[2] = n2;) N
+() S 8 T (dec_to_7seg[3] = n3;) N
+() S 8 T (dec_to_7seg[4] = n4;) N
+() S 8 T (dec_to_7seg[5] = n5;) N
+() S 8 T (dec_to_7seg[6] = n6;) N
+() S 8 T (dec_to_7seg[7] = n7;) N
+(lab6_code.c) (Page 12/14) (Dec 02, 17 14:27) title
+border
+grestore
+(Printed by Andrew McCullough) rhead
+(lab6_code.c) (6/7) (Saturday December 02, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (13-14) 7
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p 8 T (dec_to_7seg[8] = n8;) N
+() S 8 T (dec_to_7seg[9] = n9;) N
+() N
+() S 8 T () S
+(//set port bits 4-7 B as outputs) c n
+() p 8 T (DDRB = 0b11110000;) N
+() N
+() S 8 T () S
+(//initialize tcnt0, spi, and set interrupts) c n
+() p 8 T (tcnt0_init\(\);) N
+() S 8 T (tcnt1_init\(\);) N
+() S 8 T (tcnt2_init\(\);) N
+() S 8 T (tcnt3_init\(\);) N
+() S 8 T (spi_init\(\);) N
+() S 8 T (lcd_init\(\);) N
+() S 8 T (init_twi\(\);) N
+() S 8 T (uart_init\(\);) N
+() S 8 T (radio_init\(\);) N
+() S 8 T (sei\(\);) N
+() N
+() S 8 T (clear_display\(\);) N
+() S 8 T (cursor_home\(\);) S 24 T () N
+() N
+() S 8 T () S
+(//Initialize the ADC) c n
+() p 8 T (DDRF  &= ~\(_BV\(DDF7\)\);  ) N
+() S 8 T (PORTF &= ~\(_BV\(PF7\)\);) S 32 T () N
+() S 8 T (ADMUX = 0b01000111;) N
+() S 8 T (ADCSRA = 0b10000111;) N
+() N
+() S 8 T () S
+(//local temp settings) c n
+() p 8 T (lm73_wr_buf[0] = 0x00;  ) N
+() S 8 T (twi_start_wr\(LM73_ADDRESS, lm73_wr_buf, 1\);) N
+() N
+() S 8 T (set_cursor\(2,0\);) N
+() S 8 T (string2lcd\(") S
+(L:) str
+("\);) p n
+() N
+() S 8 T (set_cursor\(2,5\);) N
+() S 8 T (string2lcd\(") S
+(R:) str
+("\);) p n
+() N
+() N
+() S 8 T () S
+(while) K
+(\(1\){) p n
+() N
+() S 8 T () S 16 T () S
+(if) K
+(\(rcv_rdy==1\){) p n
+() N
+() S 8 T () S 16 T () S 24 T (set_cursor\(2,7\);) N
+() S 8 T () S 16 T () S 24 T (string2lcd\(lcd_string_remote_temp\);  ) S
+(//write out string ) c n
+(if its ready) N
+() p 8 T () S 16 T () S 24 T (rcv_rdy=0;) N
+() S 8 T () S 16 T (}) N
+() N
+() S 8 T () S 16 T (display_led\(\);) N
+() N
+() S 8 T () S 16 T () S
+(//make PORTA an input port with pullups) c n
+() p 8 T () S 16 T (DDRA = 0x00;) N
+() S 8 T () S 16 T (PORTA = 0xFF;) N
+() N
+() S 8 T () S 16 T () S
+(//enable tristate buffer for pushbutton switches) c n
+() p 8 T () S 16 T (PORTB |= 0b01110000;) N
+() N
+() S 8 T () S 16 T () S
+(//delay for tristate buffer to fully activate) c n
+() p 8 T () S 16 T (_delay_ms\(.1\);) N
+() N
+() S 8 T () S 16 T (button_cmd\(\);    ) N
+() N
+() S 8 T () S 16 T () S
+(//disable tristate buffer for pushbutton switches) c n
+() p 8 T () S 16 T (PORTB &= ~0b01110000;) N
+() N
+() S 8 T () S 16 T () S
+(//make PORTA an output) c n
+() p 8 T () S 16 T (DDRA = 0xFF;) N
+() N
+() S 8 T () S 16 T () S
+(//Get each digit of the decimal number and store in segment data) c n
+(lab6_code.c) (Page 13/14) (Dec 02, 17 14:27) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+( array) c n
+() p 8 T () S 16 T (store_seg_data\(time_hr, time_min, current_fm_freq\);) N
+() N
+() S 8 T () S 16 T () S
+(//show number on LED) c 40 T () N
+() p 8 T () S 16 T (display_led\(\);) N
+() N
+() S 8 T () S 16 T (enc_get\(\);) N
+() N
+() S 8 T (}) S
+(//while) c n
+(}) p
+(//main                    ) c n
+(lab6_code.c) (Page 14/14) (Dec 02, 17 14:27) title
+border
+grestore
+(Printed by Andrew McCullough) rhead
+(lab6_code.c) (7/7) (Saturday December 02, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+
+%%Trailer
+end
+%%EOF
